@@ -6,7 +6,7 @@ async function main() {
   try {
     await agent.initialize();
     
-    // Example task: Go to Google and type something in the search box
+    // Example task: Go to Wikipedia and type something in the search box
     const action = await agent.executeTask(
       'https://www.wikipedia.org',
       'Find the search box and type "Roman Empire"'

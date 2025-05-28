@@ -4,7 +4,6 @@ An AI-powered browser automation agent that uses LLM (Language Learning Model) t
 
 ## Features
 
-- Uses GPT-4 Vision to analyze web page screenshots
 - Executes browser actions based on LLM analysis
 - Supports actions like clicking, typing, scrolling, and hovering
 - Built with TypeScript and Playwright

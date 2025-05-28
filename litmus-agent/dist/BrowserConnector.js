@@ -76,39 +76,28 @@ class BrowserConnector {
                 console.log(`Attempt ${attempt}/${this.MAX_RETRIES} to find element: ${selector}`);
                 // Wait for the page to be ready
                 await this.page.waitForLoadState('domcontentloaded');
-                // Try multiple selector variations
-                const selectors = [
-                    selector,
-                    'textarea[name="q"]',
-                    'input[type="text"]',
-                    'input[aria-label="Search"]',
-                    'input[title="Search"]'
-                ];
-                let foundSelector = selector;
                 let elementFound = false;
-                for (const sel of selectors) {
-                    try {
-                        const exists = await this.page.$(sel);
-                        if (exists) {
-                            console.log(`Found element with selector: ${sel}`);
-                            foundSelector = sel;
-                            elementFound = true;
-                            break;
-                        }
+                // Wait till page loads and selector is visible
+                try {
+                    const exists = await this.page.$(selector);
+                    if (exists) {
+                        console.log(`Found element with selector: ${selector}`);
+                        elementFound = true;
+                        break;
                     }
-                    catch (e) {
-                        console.log(`Selector ${sel} not found`);
-                    }
+                }
+                catch (e) {
+                    console.log(`Selector ${selector} not found`);
                 }
                 if (!elementFound) {
                     throw new Error(`No matching elements found for any selector variation`);
                 }
                 // Wait for the element to be visible using the found selector
-                await this.page.waitForSelector(foundSelector, {
+                await this.page.waitForSelector(selector, {
                     state: 'visible',
                     timeout: this.DEFAULT_TIMEOUT
                 });
-                console.log(`Element ${foundSelector} found and visible`);
+                console.log(`Element ${selector} found and visible`);
                 return;
             }
             catch (error) {
@@ -134,11 +123,11 @@ class BrowserConnector {
             // Wait for the element to be visible before performing any action
             await this.waitForElement(action.selector);
             // Get the actual selector that was found
-            let foundSelector = action.selector;
+            let selector = action.selector;
             switch (action.action) {
                 case 'click':
-                    console.log(`Clicking element: ${foundSelector}`);
-                    await this.page.click(foundSelector, {
+                    console.log(`Clicking element: ${selector}`);
+                    await this.page.click(selector, {
                         timeout: this.DEFAULT_TIMEOUT,
                         force: true // Force click even if element is covered
                     });
@@ -146,24 +135,24 @@ class BrowserConnector {
                 case 'type':
                     if (!action.value)
                         throw new Error('Value required for type action');
-                    console.log(`Typing "${action.value}" into element: ${foundSelector}`);
-                    await this.page.fill(foundSelector, action.value, {
+                    console.log(`Typing "${action.value}" into element: ${selector}`);
+                    await this.page.fill(selector, action.value, {
                         timeout: this.DEFAULT_TIMEOUT,
                         force: true // Force type even if element is covered
                     });
                     break;
                 case 'scroll':
-                    console.log(`Scrolling to element: ${foundSelector}`);
+                    console.log(`Scrolling to element: ${selector}`);
                     await this.page.evaluate((selector) => {
                         const element = document.querySelector(selector);
                         if (element) {
                             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
-                    }, foundSelector);
+                    }, selector);
                     break;
                 case 'hover':
-                    console.log(`Hovering over element: ${foundSelector}`);
-                    await this.page.hover(foundSelector, {
+                    console.log(`Hovering over element: ${selector}`);
+                    await this.page.hover(selector, {
                         timeout: this.DEFAULT_TIMEOUT,
                         force: true // Force hover even if element is covered
                     });
